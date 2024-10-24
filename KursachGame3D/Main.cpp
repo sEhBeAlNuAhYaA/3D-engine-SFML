@@ -1,20 +1,25 @@
 #include "Includes.h"
+#include "Engine.h"
 
-
-int main(int argc, char* argv[])
+int main(int argc, char** argv)
 {
-    sf::RenderWindow mainWindow(sf::VideoMode(800, 600), "Game");
-    sf::Event event;
-
-
-    while (mainWindow.isOpen())
+    printf("START\n");
+    switch (argc)
     {
-        while (mainWindow.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-            {
-                mainWindow.close();
-            }
-        }
+    case 1:
+    {
+        Engine* engine = new Engine;
+        delete engine;
+        break;
     }
+    case 3:
+    {
+        Engine* engine = new Engine(std::stoi(argv[1]), std::stoi(argv[2]));
+        delete engine;
+        break;
+    }
+    }
+    
+    
+    printf("END\n");
 }
