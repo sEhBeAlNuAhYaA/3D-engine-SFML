@@ -8,5 +8,5 @@ static int FOV = 32;
 #define DISTANCE 125
 #define MapSizeX 10
 #define MapSizeY 10
-#define MapObjectWidth 10
+#define MapObjectWidth 16
 #define MapObjectHeght 30

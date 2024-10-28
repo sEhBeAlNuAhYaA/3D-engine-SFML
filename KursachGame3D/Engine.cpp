@@ -65,7 +65,7 @@ void Engine::DrawEntities(DrawableEntityCollection entitiesCollection)
 {
     for (auto it : entitiesCollection.GetEntityColection())
     {
-        m_window.draw(*(it.get()->GetSprite()));
+        m_window.draw(*(it.get()->GetShape()));
     }
 
     for (auto it = entitiesCollection.mapDrawable.begin(), end = entitiesCollection.mapDrawable.end(); it != end; ++it)
