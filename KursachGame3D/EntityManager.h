@@ -29,7 +29,7 @@ public:
 
 public:
     void SetShape(std::shared_ptr<sf::Shape> newShape);
-    void SetTexture(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f Scale);
+    void SetTexture(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f Scale, sf::Vector2f textureOrigin);
     sf::Vector2f GetPosition();
     sf::Vector2f GetPoint(int point);
     std::shared_ptr<sf::Shape> GetShape();

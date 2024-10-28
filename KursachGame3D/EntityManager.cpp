@@ -11,14 +11,14 @@ void Entity::SetShape(std::shared_ptr<sf::Shape> newShape)
     m_shape = newShape;
 }
 
-void Entity::SetTexture(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f scale)
+void Entity::SetTexture(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f scale, sf::Vector2f textureOrigin)
 {
     m_sprite = std::make_shared<sf::Sprite>();
     m_texture = newTexture;
     m_sprite->setTexture(*m_texture);
     m_sprite->setTextureRect(textureRect);
     m_sprite->setScale(scale);
-    m_sprite->setOrigin(0,32);
+    m_sprite->setOrigin(textureOrigin.x, textureOrigin.y);
     m_sprite->setPosition(m_shape->getPosition());
 }
 
