@@ -50,12 +50,13 @@ void Engine::Update()
         //drawing frame
         DrawEntities(frame);
         DrawMap(*m_RayCastingProccessingForMapAndFrame);
-        //sf::Texture wallTexture;
-        //wallTexture.loadFromFile("WallTexture.png");
-        //sf::Sprite sp;
-        //sp.setPosition(100, 100);
-        //sp.setTexture(wallTexture);
-        //sp.setTextureRect(sf::IntRect(0, 0, 10, 64));
+        sf::Texture wallTexture;
+        wallTexture.loadFromFile("WallTexture.png");
+        sf::Sprite sp;
+        sp.setPosition(100, 100);
+        sp.setTexture(wallTexture);
+        sp.setScale(5, 5);
+        sp.setTextureRect(sf::IntRect(0, 0, 64, 32));
         //m_window.draw(sp);
         m_window.display();
     }
@@ -65,7 +66,7 @@ void Engine::DrawEntities(DrawableEntityCollection entitiesCollection)
 {
     for (auto it : entitiesCollection.GetEntityColection())
     {
-        m_window.draw(*(it.get()->GetShape()));
+        m_window.draw(*(it.get()->GetSprite()));
     }
 
     for (auto it = entitiesCollection.mapDrawable.begin(), end = entitiesCollection.mapDrawable.end(); it != end; ++it)

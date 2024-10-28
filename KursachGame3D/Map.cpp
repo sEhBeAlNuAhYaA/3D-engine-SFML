@@ -140,6 +140,8 @@ DrawableEntityCollection RayCastingProccessingForMapAndFrame::FillEntitiesCollec
     wallTexture->loadFromFile("WallTexture.png");
     //float d = cos(m_playerOnMap.playerViewDirection) * 3.14;
     double currentViewAngle = m_playerOnMap.playerViewDirection - VIEWANGLE / 2.0;
+    double lastHitx = 0;
+    printf("=====================================================================\n");
     for (int lines = 0; lines < m_playerOnMap.m_FOV; ++lines)
     {
         //float a = cos(currentViewAngle) * 3.14;
@@ -174,35 +176,63 @@ DrawableEntityCollection RayCastingProccessingForMapAndFrame::FillEntitiesCollec
                 std::shared_ptr<Entity> entity = std::make_shared<Entity>();
                 entity->SetShape(rect3d);
 
+                //texture extracting
                 float i;
                 double hitx = modf(x / MapObjectWidth, &i);
+                double textureColumnWidth;
+                if (abs(hitx - lastHitx) > 0.2)
+                {
+                    textureColumnWidth = hitx - 0;
+                }
+                else
+                {
+                    textureColumnWidth = (hitx - lastHitx);
+                    //if (textureColumnWidth * 64 < 0)
+                    {
+                        //textureColumnWidth = 1 / 64;
+                    }
+                }
+                
+                sf::Vector2f ScaleForTexture(BASE_WIDTH / m_playerOnMap.m_FOV, wallHeight / 64.f);
+                if (hitx < 0.015625)
+                {
+                    ScaleForTexture.x = hitx / 0.015625;
+                }
                 //printf("hitx = %f; B = %s\n", hitx, m_Map[(int)(y / (double)MapObjectWidth)][(int)(x / (double)MapObjectWidth)] == '2' ? "YES": "0");
                 double hity = 0;
                 if (lines != 0 && lines % m_playerOnMap.m_FOV / 2 == 0)
                 {
-                    printf("size %f\n", lineL * (1 / tan(VIEWANGLE / 2) * 2) / m_playerOnMap.m_FOV * 10);
+                    //printf("size %f\n", lineL * (1 / tan(VIEWANGLE / 2) * 2) / m_playerOnMap.m_FOV * 10);
                 }
                 
                 //printf("top %f; x%f; bottom %f\n", (float)VIEWANGLE / 2.f + VIEWANGLE / (double)m_playerOnMap.m_FOV + m_playerOnMap.m_playerDirection, currentViewAngle, (float)VIEWANGLE / 2.f - VIEWANGLE / (double)m_playerOnMap.m_FOV + m_playerOnMap.playerViewDirection);
                 if(currentViewAngle >= (float)VIEWANGLE / 2.f - VIEWANGLE / (double)m_playerOnMap.m_FOV && currentViewAngle <= (float)VIEWANGLE / 2.f + VIEWANGLE / (double)m_playerOnMap.m_FOV)
                 {
-                    float lineLL = sqrt(pow((x - m_ShapesMap[m_playerOnMapPosition].get()->getPosition().x), 2) + pow((y - m_ShapesMap[m_playerOnMapPosition].get()->getPosition().y), 2));
-                    float i;
-                    hitx = modf(x / MapObjectWidth, &i);
+                    //float lineLL = sqrt(pow((x - m_ShapesMap[m_playerOnMapPosition].get()->getPosition().x), 2) + pow((y - m_ShapesMap[m_playerOnMapPosition].get()->getPosition().y), 2));
+                    //float i;
+                    //hitx = modf(x / MapObjectWidth, &i);
                     //printf("FOV = %f; lineL = %f; distance = %f; ViewAngle = %f\n",  lineLL * (1 / tan(VIEWANGLE / 2) * 2), lineLL, distance, currentViewAngle);
                 }
                 else
                 {
                     //printf("top %f; x%f; bottom %f\n", (float)VIEWANGLE / 2.f + VIEWANGLE / (double)m_playerOnMap.m_FOV + m_playerOnMap.m_playerDirection, currentViewAngle, (float)VIEWANGLE / 2.f - VIEWANGLE / (double)m_playerOnMap.m_FOV + m_playerOnMap.playerViewDirection);
                     //printf("direction - %f\n", m_playerOnMap.playerViewDirection);
-                    
+                  
                 }
-
-                //entity->SetTexture(wallTexture, sf::IntRect(0, 0, lineL * (1 / tan(VIEWANGLE / 2) * 2) / m_playerOnMap.m_FOV * 10, 64), sf::Vector2f(1, wallHeight / 64.f));
                 
+                entity->SetTexture(wallTexture, sf::IntRect(lastHitx * 64, 0, (textureColumnWidth * 64) < 1 ? 1 : (textureColumnWidth * 64), 64), ScaleForTexture);
+
+                printf("hitx - %f, lastHitX - %f, textureW - %f, shapeX - %f;\n", hitx * 64, lastHitx * 64, (textureColumnWidth * 64), entity->GetShape()->getPosition().x);
+                lastHitx = hitx;
+
                 if (distance > DISTANCE - 1 && distance < DISTANCE)
                 {
-                    //entity->GetSprite()->setColor(sf::Color::Black);
+                    entity->GetSprite()->setColor(sf::Color::Black);
+                }
+                if ((int)(textureColumnWidth * 64) == 0)
+                {
+                    //entity->GetSprite()->setTextureRect(sf::IntRect(lastHitx * 64, 0, 1, 64));
+                    //entity->GetSprite()->setColor(sf::Color::Red);
                 }
                                     
                 entityCollection.PushEntity(entity);
@@ -227,6 +257,8 @@ DrawableEntityCollection RayCastingProccessingForMapAndFrame::FillEntitiesCollec
                 entityMapPixel->SetShape(rectPixel);
                 entityCollection.PushEntityPixelForMap(entityMapPixel);
 
+
+                    
                 break;
             }
         }

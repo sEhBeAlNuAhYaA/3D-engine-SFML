@@ -9,4 +9,4 @@ static int FOV = 32;
 #define MapSizeX 10
 #define MapSizeY 10
 #define MapObjectWidth 16
-#define MapObjectHeght 30
+#define MapObjectHeght 16
