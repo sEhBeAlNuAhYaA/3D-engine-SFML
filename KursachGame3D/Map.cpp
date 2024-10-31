@@ -124,7 +124,7 @@ void RayCastingProccessingForMapAndFrame::addMapBorder(DrawableEntityCollection&
 
     std::shared_ptr<Entity> entity = std::make_shared<Entity>();
     entity->SetShape(mapCircle);
-    //entitiesCollection.PushEntity(entity);
+    entitiesCollection.PushEntity(entity);
 }
 
 PlayerOnMap RayCastingProccessingForMapAndFrame::GetPlayerOnMap()
@@ -137,38 +137,29 @@ DrawableEntityCollection RayCastingProccessingForMapAndFrame::FillEntitiesCollec
     DrawableEntityCollection entityCollection;
     
     std::shared_ptr<sf::Texture> wallTexture = std::make_shared<sf::Texture>();
-    wallTexture->loadFromFile("popa.png");
+    wallTexture->loadFromFile("WallTexture.png");
     int sizeX = wallTexture->getSize().x;
-    //float d = cos(m_playerOnMap.playerViewDirection) * 3.14;
+
     double currentViewAngle = m_playerOnMap.playerViewDirection - VIEWANGLE / 2.0;
     //for textures
-    double lastHitx = 0;
-    double lastHity = 0;
-    //printf("=====================================================================\n");
+    double lastHitx = 0.005;
+    double lastHity = 0.005;
+
     for (int lines = 0; lines < m_playerOnMap.m_FOV; ++lines)
     {
-        //float a = cos(currentViewAngle) * 3.14;
-     
-        //printf("%f %f\n", m_playerOnMap.playerViewDirection, currentViewAngle);
-        for (float distance = 0.f; distance <= DISTANCE; distance += 0.5f)
+        for (float distance = 0.f; distance <= DISTANCE; distance += 0.25f)
         {
             double x = m_ShapesMap[m_playerOnMapPosition].get()->getPosition().x + distance * cos(currentViewAngle);
             double y = m_ShapesMap[m_playerOnMapPosition].get()->getPosition().y + distance * sin(currentViewAngle);
             if (m_Map[(int)(y / (double)MapObjectWidth)][(int)(x / (double)MapObjectWidth)] != '0' || (distance > DISTANCE - 1 && distance < DISTANCE))
             {
                 //Rectangle for 3d
-                //printf("cosinus - %f\n", floor(cos(currentViewAngle - m_playerOnMap.playerViewDirection) * 10) / 10);
-
                 float lineL = sqrt(pow((x - m_ShapesMap[m_playerOnMapPosition].get()->getPosition().x), 2) + pow((y - m_ShapesMap[m_playerOnMapPosition].get()->getPosition().y), 2)) * cos(currentViewAngle - m_playerOnMap.playerViewDirection);
-                //printf("lineL - %f; lineLF - %f;\n", sqrt(pow((x - m_ShapesMap[m_playerOnMapPosition].get()->getPosition().x), 2) + pow((y - m_ShapesMap[m_playerOnMapPosition].get()->getPosition().y), 2)), lineL);
                 float planeAngle = (float)BASE_WIDTH / (2.0 * tan(VIEWANGLE / 2.0));
-                //printf("planeAngle - %f\n", planeAngle);
                 float wallHeight = MapObjectHeght * planeAngle / lineL;
                 //3d frame rendering
                 std::shared_ptr<sf::RectangleShape> rect3d = std::make_shared<sf::RectangleShape>(sf::Vector2f((float)BASE_WIDTH / m_playerOnMap.m_FOV, wallHeight));
                 rect3d->setOrigin(0, wallHeight / 2.f);
-                //rect3d->setOutlineThickness(1);
-                //rect3d->setOutlineColor(sf::Color::Red);
                 rect3d->setPosition(sf::Vector2f(lines * (float)BASE_WIDTH / m_playerOnMap.m_FOV, (float)BASE_HEIGHT / 2.0));
                 int R = m_Map[(int)(y / (double)MapObjectWidth)][(int)(x / (double)MapObjectWidth)] == '2' ? 0 : 255;
                 int G = m_Map[(int)(y / (double)MapObjectWidth)][(int)(x / (double)MapObjectWidth)] == '2' ? 0 : 255;
@@ -181,51 +172,26 @@ DrawableEntityCollection RayCastingProccessingForMapAndFrame::FillEntitiesCollec
 
                 //texture extracting
                 float i;
-                bool q = true;
-                double hit = 0;
-                double lastHit = 0;
+                double hit = 0.005;
+                double lastHit = 0.005;
                 double yy = y / (double)MapObjectWidth;
                 double xx = x / (double)MapObjectWidth;
 
-                float horizont = x - floor(x + 0.1);
-                float vertical = y - floor(y + 0.1);
-                
-                if (abs(horizont) >= abs(vertical))
+                if (abs(xx - round(xx)) <= abs(yy - round(yy)))
                 {
-                    q = true;
-                    hit = modf(xx, &i);
-
+                    hit = modf(yy, &i);
                     lastHit = lastHity;
                     lastHity = hit;
                 }
                 else 
                 {
-                    q = false;
-                    hit = modf(yy, &i);
-
+                    hit = modf(xx, &i);
                     lastHit = lastHitx;
                     lastHitx = hit;
-                }
-               
-                if (lines == m_playerOnMap.m_FOV / 2)
-                {
-                    printf("hit - %f; lastHit - %f; yy - %f; xx - %f\n", hit, lastHit, yy, xx);
-                    //printf(" xd - %f; yd - %f; q - %d\n", xx - (int)xx, yy - (int)yy, q);
-                    //printf("horizontal - %f; vertical - %f\n", horizont , vertical);
-                }
-               
-                
-                //printf("hit - %f; lastHit - %f; yy - %f; xx - %f;\n", hit * 100, lastHit * 100, yy, xx);
-                //printf("w - %f\n", textureColumnWidth * sizeX);
-
+                } 
                 sf::Vector2f ScaleForTexture(BASE_WIDTH / m_playerOnMap.m_FOV, wallHeight / sizeX);
-
-                entity->SetTexture(wallTexture, sf::IntRect(lastHit * sizeX, 0, 1, sizeX), ScaleForTexture, sf::Vector2f(0, sizeX / 2));
-
-                //printf("hitx - %f, lastHitX - %f, textureW - %f, shapeX - %f;\n", hitx * sizeX, lastHitx * sizeX, (textureColumnWidth * sizeX), entity->GetShape()->getPosition().x);
                 
-                
-
+                entity->SetTextureAndSprite(wallTexture, sf::IntRect(lastHit * sizeX, 0, 1, wallTexture->getSize().y), ScaleForTexture, sf::Vector2f(0, wallTexture->getSize().y / 2));
                 if (distance > DISTANCE - 1 && distance < DISTANCE)
                 {
                     entity->GetSprite()->setColor(sf::Color::Black);
@@ -237,7 +203,6 @@ DrawableEntityCollection RayCastingProccessingForMapAndFrame::FillEntitiesCollec
                 float lineYMap = y - m_ShapesMap[m_playerOnMapPosition].get()->getPosition().y + DISTANCE;
 
                 //map collection
-
                 std::array<sf::Vertex, 2> line =
                 {
                     sf::Vertex(m_playerOnMap.m_playerShape.getPosition(), sf::Color::White),
@@ -255,8 +220,6 @@ DrawableEntityCollection RayCastingProccessingForMapAndFrame::FillEntitiesCollec
                 break;
             }
         }
-        //sf::sleep(sf::milliseconds(1));
-        //printf("+ - %f\n", floor(((double)VIEWANGLE / (double)m_playerOnMap.m_FOV) * 1000) / 1000);
         currentViewAngle += (double)VIEWANGLE / (double)m_playerOnMap.m_FOV;
     }
     addMapBorder(entityCollection);

@@ -8,11 +8,13 @@ Entity::Entity(sf::Shape* newShape, long newId)
 
 void Entity::SetShape(std::shared_ptr<sf::Shape> newShape)
 {
+    m_entityState = EntityState::ISSHAPE;
     m_shape = newShape;
 }
 
-void Entity::SetTexture(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f scale, sf::Vector2f textureOrigin)
+void Entity::SetTextureAndSprite(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f scale, sf::Vector2f textureOrigin)
 {
+    m_entityState = EntityState::ISSPRITE;
     m_sprite = std::make_shared<sf::Sprite>();
     m_texture = newTexture;
     m_sprite->setTexture(*m_texture);
@@ -22,24 +24,29 @@ void Entity::SetTexture(std::shared_ptr<sf::Texture> newTexture, sf::IntRect tex
     m_sprite->setPosition(m_shape->getPosition());
 }
 
-sf::Vector2f Entity::GetPosition()
+sf::Vector2f Entity::GetPosition() const
 {
     return m_shape->getPosition();
 }
 
-sf::Vector2f Entity::GetPoint(int point)
+sf::Vector2f Entity::GetPoint(int point) const
 {
     return m_shape->getPoint(point);
 }
 
-std::shared_ptr<sf::Shape> Entity::GetShape()
+std::shared_ptr<sf::Shape> Entity::GetShape() const
 {
     return m_shape;
 }
 
-std::shared_ptr<sf::Sprite> Entity::GetSprite()
+std::shared_ptr<sf::Sprite> Entity::GetSprite() const
 {
     return m_sprite;
+}
+
+EntityState Entity::GetEntityState() const
+{
+    return m_entityState;
 }
 
 void DrawableEntityCollection::PushEntity(std::shared_ptr<Entity> entity_ptr)

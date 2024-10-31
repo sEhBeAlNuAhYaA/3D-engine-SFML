@@ -1,7 +1,7 @@
 #pragma once
 #define BASE_WIDTH 1024
 #define BASE_HEIGHT 768
-#define PLAYERSPEED 70
+#define PLAYERSPEED 120
 #define ROTATESPEED 3
 static int FOV = 32;
 #define VIEWANGLE 1.57

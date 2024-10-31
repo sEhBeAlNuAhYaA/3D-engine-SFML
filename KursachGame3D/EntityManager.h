@@ -21,6 +21,12 @@ private:
     long uniqieId;
 };
 
+enum EntityState
+{
+    ISSHAPE,
+    ISSPRITE
+};
+
 class Entity
 {
 public:
@@ -29,13 +35,15 @@ public:
 
 public:
     void SetShape(std::shared_ptr<sf::Shape> newShape);
-    void SetTexture(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f Scale, sf::Vector2f textureOrigin);
-    sf::Vector2f GetPosition();
-    sf::Vector2f GetPoint(int point);
-    std::shared_ptr<sf::Shape> GetShape();
-    std::shared_ptr<sf::Sprite> GetSprite();
+    void SetTextureAndSprite(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f Scale, sf::Vector2f textureOrigin);
+    sf::Vector2f GetPosition() const;
+    sf::Vector2f GetPoint(int point) const;
+    std::shared_ptr<sf::Shape> GetShape() const;
+    std::shared_ptr<sf::Sprite> GetSprite() const;
+    EntityState GetEntityState() const;
 
 private:
+    EntityState m_entityState;
     std::shared_ptr<sf::Shape> m_shape = 0;
     std::shared_ptr<sf::Sprite> m_sprite = 0;
     std::shared_ptr<sf::Texture> m_texture = 0;
