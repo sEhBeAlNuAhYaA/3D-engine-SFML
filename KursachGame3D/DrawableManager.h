@@ -21,29 +21,31 @@ private:
     long uniqieId;
 };
 
-enum EntityState
+enum DrawableType
 {
     ISSHAPE,
     ISSPRITE
 };
 
-class Entity
+class Drawable
 {
 public:
-    Entity() {}
-    Entity(sf::Shape* newShape, long newId);
+    Drawable() {}
+    Drawable(long newId);
 
 public:
     void SetShape(std::shared_ptr<sf::Shape> newShape);
-    void SetTextureAndSprite(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f Scale, sf::Vector2f textureOrigin);
+    void SetTextureAndSprite(std::shared_ptr<sf::Texture> newTexture, sf::IntRect textureRect, sf::Vector2f Scale, sf::Vector2f textureOrigin, sf::Vector2f position);
+    void SetSpriteOrigin(const sf::Vector2f& origin);
+    void SetSpritePosition(const sf::Vector2f& position);
     sf::Vector2f GetPosition() const;
     sf::Vector2f GetPoint(int point) const;
     std::shared_ptr<sf::Shape> GetShape() const;
     std::shared_ptr<sf::Sprite> GetSprite() const;
-    EntityState GetEntityState() const;
+    DrawableType GetDrawableType() const;
 
 private:
-    EntityState m_entityState;
+    DrawableType m_drawableType;
     std::shared_ptr<sf::Shape> m_shape = 0;
     std::shared_ptr<sf::Sprite> m_sprite = 0;
     std::shared_ptr<sf::Texture> m_texture = 0;
@@ -51,21 +53,21 @@ private:
 
 };
 
-class DrawableEntityCollection
+class DrawableCollection
 {
 public:
-    DrawableEntityCollection(){}
-    void PushEntity(std::shared_ptr<Entity> entity_ptr);
-    void PushEntityPixelForMap(std::shared_ptr<Entity> entity_ptr);
-    std::vector<std::shared_ptr<Entity>> GetEntityColection();
-    std::vector<std::shared_ptr<Entity>> GetEntityPixelsForMapColection();
+    DrawableCollection(){}
+    void PushDrawable(std::shared_ptr<Drawable> drawable_ptr);
+    void PushDrawablePixelForMap(std::shared_ptr<Drawable> drawable_ptr);
+    std::vector<std::shared_ptr<Drawable>> GetDrawableColection();
+    std::vector<std::shared_ptr<Drawable>> GetDrawablePixelsForMapColection();
 
 private:
-    std::vector<std::shared_ptr<Entity>> m_drawableEntityCollection;
+    std::vector<std::shared_ptr<Drawable>> m_drawableDrawableCollection;
 
 public:
     std::vector<std::shared_ptr<std::array<sf::Vertex, 2>>> mapDrawable;
-    std::vector<std::shared_ptr<Entity>> m_mapPixels;
+    std::vector<std::shared_ptr<Drawable>> m_mapPixels;
 };
 
 

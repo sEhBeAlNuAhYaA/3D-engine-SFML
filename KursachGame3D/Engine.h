@@ -4,12 +4,13 @@
 #include <SFML/Audio.hpp>
 #include <SFML/System.hpp>
 #include "Map.h"
-#include "EntityManager.h"
+#include "DrawableManager.h"
 #include <iostream>
 #include <functional>
 #include <thread>
 #include <fstream>
 #include "Tools.h"
+#include "TextureLoader.h"
 
 class Engine
 {
@@ -21,7 +22,7 @@ public:
     void DrawMap(RayCastingProccessingForMapAndFrame map);
     void PoolEvent();
     void Update();
-    void DrawEntities(DrawableEntityCollection entitiesCollection);
+    void DrawEntities(DrawableCollection entitiesCollection);
 
 private:
     sf::RenderWindow m_window;
