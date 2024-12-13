@@ -5,6 +5,9 @@ RayCastingProccessingForMapAndFrame::RayCastingProccessingForMapAndFrame(const P
 {
     m_hitSound.openFromFile("hitSound.mp3");
     m_hitSound.setVolume(5);
+    m_playerHitSound.openFromFile("playerHit.mp3");
+    m_playerHitSound.setVolume(15);
+    m_playerHitSound.pause();
     m_playerOnMap = player;
     FillShapesMap();
     FindPathForEveryEntity();
@@ -187,11 +190,20 @@ void RayCastingProccessingForMapAndFrame::addArms(DrawableCollection& entitiesCo
     std::shared_ptr<sf::Texture> armsTexture = std::make_shared<sf::Texture>();
     armsTexture = m_textureLoader.GetSpriteTexture(m_playerOnMap.m_bisHiting ? '8' : '9');
     std::shared_ptr<Drawable> drawableSprite = std::make_shared<Drawable>();
+    auto scale = sf::Vector2f(1,1);
+    if (m_playerOnMap.m_gun == Gun::Pistol)
+    {
+        scale = sf::Vector2f(0.5, 0.5);
+    }
+    if (m_playerOnMap.m_gun == Gun::Rifle)
+    {
+        scale = sf::Vector2f(2, 2);
+    }
     drawableSprite->SetTextureAndSprite(
         armsTexture, 
         sf::IntRect(0, 0, armsTexture->getSize().x,
         armsTexture->getSize().y), 
-        sf::Vector2f(1, 1), 
+        scale, 
         sf::Vector2f(armsTexture->getSize().x / 2, armsTexture->getSize().y / 2),
         sf::Vector2f(sf::Vector2f(BASE_WIDTH / 2, BASE_HEIGHT - armsTexture->getSize().y / 2)));
     auto color = drawableSprite->GetSprite()->getColor();
@@ -217,7 +229,7 @@ void RayCastingProccessingForMapAndFrame::addHud(DrawableCollection& entitiesCol
     entitiesCollection.PushDrawable(drawableShape1);
 
     std::shared_ptr<sf::RectangleShape> Armor = std::make_shared<sf::RectangleShape>(sf::Vector2f(m_playerOnMap.m_Armor * 2, 10));
-    Armor->setPosition(sf::Vector2f(25, BASE_HEIGHT - 40));
+    Armor->setPosition(sf::Vector2f(25, BASE_HEIGHT - 70));
     Armor->setFillColor(sf::Color::Blue);
     std::shared_ptr<sf::RectangleShape> Armorborder = std::make_shared<sf::RectangleShape>(sf::Vector2f(200, 10));
     Armorborder->setPosition(sf::Vector2f(25, BASE_HEIGHT - 70));
@@ -239,7 +251,21 @@ PlayerOnMap& RayCastingProccessingForMapAndFrame::GetPlayerOnMap()
 
 void RayCastingProccessingForMapAndFrame::DoHit(sf::Clock& clock)
 {
-    if (clock.getElapsedTime().asSeconds() > 0.5)
+    m_playerOnMap.updateGun();
+    float time = 0;
+    if (m_playerOnMap.m_gun == Gun::Pistol)
+    {
+        time = 0.25;
+    }
+    if (m_playerOnMap.m_gun == Gun::Shootgun)
+    {
+        time = 0.5;
+    }
+    if (m_playerOnMap.m_gun == Gun::Rifle)
+    {
+        time = 1;
+    }
+    if (clock.getElapsedTime().asSeconds() > time)
     {
         m_hitSound.play();
         m_playerOnMap.m_bisHiting = true;
@@ -307,8 +333,7 @@ void RayCastingProccessingForMapAndFrame::checkForKills()
 {
     if (m_playerOnMap.m_killsCounter.x != m_playerOnMap.m_killsCounter.y)
     {
-        printf("Kills:%d\n", m_playerOnMap.m_killsCounter.y);
-
+        m_playerOnMap.m_score = m_playerOnMap.m_killsCounter.y * 150;
         switch (m_playerOnMap.m_killsCounter.y)
         {
         case 1: {
@@ -347,11 +372,22 @@ void RayCastingProccessingForMapAndFrame::playerDamage(sf::Clock& clockForEntity
 {
     for (auto it = std::begin(m_EntityList), end = std::end(m_EntityList); it != end; ++it)
     {
-        if (it->m_Distance <= 16)
+        if (it->m_Distance <= 20 && it->m_Distance > 0)
         {
             if (clockForEntity.getElapsedTime().asSeconds() > 1)
             {
-                m_playerOnMap.m_HP -= 10;
+                m_playerHitSound.play();
+                if (m_playerOnMap.m_Armor - m_playerOnMap.m_entityDamage > 0)
+                {
+                    m_playerOnMap.m_Armor -= m_playerOnMap.m_entityDamage;
+                }
+                else
+                {
+                    m_playerOnMap.m_HP -= (m_playerOnMap.m_entityDamage - m_playerOnMap.m_Armor);
+                    if (m_playerOnMap.m_HP < 0) m_playerOnMap.m_HP = 0;
+                    m_playerOnMap.m_Armor = 0;
+                    
+                }
                 clockForEntity.restart();
             }
         }
@@ -404,9 +440,6 @@ void RayCastingProccessingForMapAndFrame::fillEntityFromEngine(DrawableCollectio
             }
         }
         
-
-        //printf("x:%f;y:%f\n", CurrentPositionX, CurrentPositionY);
-
         const double imageSizeX = it->m_Image.getSize().x;
         const double imageSizeY = it->m_Image.getSize().y;
 
@@ -480,12 +513,10 @@ std::vector<sf::Vector2i> RayCastingProccessingForMapAndFrame::FindShortestPath(
         sf::Vector2i point = (sf::Vector2i)current.first;
         std::vector<sf::Vector2i> path = current.second;
 
-        // Если достигли конечной точки
         if (point.x == (int)playerPosition.x / 16 && point.y == (int)playerPosition.y / 16) {
             return path;
         }
 
-        // Проверка всех четырех направлений
         for (const auto& dir : directions) {
             int newX = point.x + dir.x;
             int newY = point.y + dir.y;
@@ -559,6 +590,11 @@ void RayCastingProccessingForMapAndFrame::MoveEntityToPlayer(sf::Clock& clock, d
         }
         clock.restart();
     }
+}
+
+bool RayCastingProccessingForMapAndFrame::isLvlDone()
+{
+    return m_EntityList.size() == 0;
 }
 
 DrawableCollection RayCastingProccessingForMapAndFrame::FillEntitiesCollectionForMapAndFrame()

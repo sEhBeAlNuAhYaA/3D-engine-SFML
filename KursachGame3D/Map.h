@@ -57,6 +57,9 @@ public:
     std::vector<sf::Vector2i> FindShortestPath(const sf::Vector2f& entityPosition, const sf::Vector2f& playerPosition);
     void MoveEntityToPlayer(sf::Clock& clock, double deltaTime);
 
+public:
+    bool isLvlDone();
+
 private:
     std::vector<std::shared_ptr<sf::Shape>> m_ShapesMap;
     int m_playerOnMapPosition;
@@ -64,4 +67,5 @@ private:
     PlayerOnMap m_playerOnMap;
     sf::Music m_hitSound;
     sf::Music m_killSound;
+    sf::Music m_playerHitSound;
 };

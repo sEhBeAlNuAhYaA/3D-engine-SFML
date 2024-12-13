@@ -1,7 +1,0 @@
-1WallTexture.png
-2quadro.jpg
-3q.jpg
-SPRITES
-ebobik.png
-9arms.png
-8armsHit.png

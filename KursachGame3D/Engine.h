@@ -13,11 +13,18 @@
 #include "TextureLoader.h"
 #include "Button.h"
 
+
+enum class GameState
+{
+    MainMenu,
+    ShopMenu,
+    Game
+};
+
 class Engine
 {
 public:
     Engine();
-    Engine(const int framerate, const int fov);
     ~Engine();
     void DoRenderMainWindow();
     void DrawMap(RayCastingProccessingForMapAndFrame* map);
@@ -27,6 +34,7 @@ public:
     void DrawTab(const sf::Event& event);
     void DrawMainMenu(const sf::Event& event);
     void DrawShop(const sf::Event& event);
+    void DrawGame(const sf::Event& event);
 
 private:
     sf::RenderWindow m_window;
@@ -38,4 +46,6 @@ private:
     sf::Clock m_playerHitClock;
     sf::Music m_backMusic;
     std::shared_ptr<sf::Font> m_font = 0;
+    GameState m_gameState;
+    PlayerOnMap* m_playerOnMap;
 };

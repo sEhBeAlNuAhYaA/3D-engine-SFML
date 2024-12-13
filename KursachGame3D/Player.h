@@ -27,6 +27,7 @@ enum class Gun
 
 enum Lvl
 {
+    lvl0,
     lvl1,
     lvl2,
     lvl3
@@ -37,6 +38,8 @@ struct PlayerOnMap
 public:
     PlayerOnMap();
     PlayerOnMap(const int fov);
+    void updateLvl();
+    void updateGun();
 
 public:
     int m_FOV;
@@ -50,5 +53,7 @@ public:
     int m_damage;
     Gun m_gun;
     Lvl m_lvl;
+    int m_score;
+    int m_entityDamage;
 
 };
