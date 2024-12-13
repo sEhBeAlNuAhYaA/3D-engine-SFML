@@ -15,6 +15,7 @@ class TextureLoader
 public:
     TextureLoader(std::string fileName);
     std::shared_ptr<sf::Texture> GetTextureByMap(const char& mapObject);
+    std::shared_ptr<sf::Texture> GetSpriteTexture(const char& mapObject);
 
 private:
     std::map<char, std::shared_ptr<sf::Texture>> m_Textures;

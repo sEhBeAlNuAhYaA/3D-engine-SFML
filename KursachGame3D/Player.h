@@ -3,7 +3,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/System.hpp>
-#include "Player.h"
 #include <iostream>
 #include <functional>
 #include <thread>
@@ -11,7 +10,7 @@
 #include "Tools.h"
 
 
-enum Direction
+enum class Direction
 {
     Forward,
     Backward,
@@ -30,4 +29,9 @@ public:
     sf::CircleShape m_playerShape;
     Direction m_playerDirection;
     double playerViewDirection;
+    bool m_bisHiting;
+    float m_HP;
+    float m_Armor;
+    sf::Vector2i m_killsCounter;
+    int m_damage;
 };

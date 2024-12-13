@@ -1,13 +1,21 @@
 #pragma once
-#include "DrawableManager.h"
 #include <SFML/Graphics.hpp>
 #include <map>
+#include "DrawableManager.h"
 #include "Tools.h"
+
+enum class EntityDirection
+{
+    Forward,
+    Backward,
+    Left,
+    Right
+};
 
 class Entity
 {
 public:
-    Entity(sf::Vector2f position);
+    Entity(sf::Vector2f position, float HP);
     Entity(
         float hp, 
         float damage, 
@@ -19,7 +27,6 @@ public:
         sf::Vector2f origin);
 public:
     void FillEntity(
-        float hp,
         float damage,
         float animationTime,
         sf::IntRect textureRect,
@@ -42,5 +49,7 @@ public:
     std::shared_ptr<sf::Texture> m_Texture = 0;
     sf::Image m_Image;
     std::shared_ptr<Drawable> m_DrawableSprite = 0;
+    std::vector<sf::Vector2i> m_pathToPlayer;
+    EntityDirection m_Direction = EntityDirection::Forward;
 };
 

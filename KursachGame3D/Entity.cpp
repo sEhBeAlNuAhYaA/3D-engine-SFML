@@ -1,7 +1,7 @@
 #include "Entity.h"
 
-Entity::Entity(sf::Vector2f position)
-    : m_CurrentPosition(position)
+Entity::Entity(sf::Vector2f position, float HP)
+    : m_CurrentPosition(position), m_HP(HP)
 {
 }
 
@@ -21,7 +21,6 @@ Entity::Entity(
 }
 
 void Entity::FillEntity(
-    float hp,
     float damage,
     float animationTime,
     sf::IntRect textureRect,
@@ -29,7 +28,6 @@ void Entity::FillEntity(
     sf::Vector2f origin,
     sf::Vector2f onScreenPosition)
 {
-    m_HP = hp;
     m_Damage = damage;
     m_AnimationTime = animationTime;
     Drawable draw;
@@ -55,54 +53,44 @@ void Entity::entityCollisionsAndLoadingTexture(std::map<double, sf::Vector2f> wa
     int spriteRightBound = onScreenPostion.x + (m_Image.getSize().x) * scale.x / 2;
 
     sf::Image tempImage = m_Image;
+    sf::Texture tex;
 
     if (spriteLeftBound < 0) spriteLeftBound = 0;
     if (spriteRightBound > BASE_WIDTH) spriteRightBound = BASE_WIDTH;
     auto lastPoint = -1;
-    for (auto it = std::begin(wallTiles), end = std::end(wallTiles); it != end; ++it)
+
+    if (m_Distance < DISTANCE)
     {
-        if (it->second.x > spriteLeftBound && it->second.x < spriteRightBound)
+        for (auto it = std::begin(wallTiles), end = std::end(wallTiles); it != end; ++it)
         {
-            if (it->first < m_Distance)
+            if (it->second.x > spriteLeftBound && it->second.x < spriteRightBound && it->first < m_Distance)
             {
                 if (lastPoint < 0)
                 {
-                    //printf("%d\n", lastPoint);
                     lastPoint = (int)Tools::MinMax(it->second.x, spriteRightBound, spriteLeftBound, 0, m_Image.getSize().x);
                     continue;
                 }
 
                 auto currentPoint = (int)Tools::MinMax(it->second.x, spriteRightBound, spriteLeftBound, 0, m_Image.getSize().x);
-                //printf("Last point: %d; Current point: %d\n", lastPoint, currentPoint);
-                
+
                 for (int i = 0; i <= abs(currentPoint - lastPoint); ++i)
                 {
-                    //printf("%d\n", abs(currentPoint - lastPoint));
                     for (int j = 0; j < m_Image.getSize().y; ++j)
                     {
-                        
                         if (lastPoint + i >= m_Image.getSize().x) lastPoint = m_Image.getSize().x - i - 1;
-                        //if (currentPoint >= m_Image.getSize().x) currentPoint = m_Image.getSize().x - 1;
                         sf::Color pixel = tempImage.getPixel(lastPoint + i, j);
                         pixel.a = 0;
                         tempImage.setPixel(lastPoint + i, j, pixel);
-                        //printf("lineOnScreen: %f:%f; spriteInterval [%d;%d]\n", it->second.x, it->second.y, spriteLeftBound, spriteRightBound);
-                        
                     }
                 }
                 lastPoint = currentPoint;
             }
-
         }
-
     }
-
     
-    sf::Texture tex;
     tex.loadFromImage(tempImage);
     m_Texture = std::make_shared<sf::Texture>(tex);
     FillEntity(
-        100,
         10,
         0,
         sf::IntRect(0, 0, m_Image.getSize().x, m_Image.getSize().y),
@@ -110,6 +98,11 @@ void Entity::entityCollisionsAndLoadingTexture(std::map<double, sf::Vector2f> wa
         origin,
         onScreenPostion);
     m_DrawableSprite->GetSprite()->setColor(Tools::SetTransparetForColor(m_DrawableSprite->GetSprite()->getColor(), m_Distance >= DISTANCE ? 0 : 255 - m_Distance * 255 / DISTANCE));
+    
+    if (m_Distance > DISTANCE)
+    {
+        m_DrawableSprite->GetSprite()->setColor(sf::Color(0, 0, 0, 0));
+    }
 }
 
 void Entity::SetSpritePositionOnScreen(const sf::Vector2f& position)
@@ -121,4 +114,5 @@ void Entity::SetSpriteOriginOnScreen(const sf::Vector2f& origin)
 {
     m_DrawableSprite->SetSpriteOrigin(origin);
 }
+
 

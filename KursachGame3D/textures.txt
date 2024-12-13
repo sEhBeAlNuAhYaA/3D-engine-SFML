@@ -3,3 +3,5 @@
 3q.jpg
 SPRITES
 ebobik.png
+9arms.png
+8armsHit.png

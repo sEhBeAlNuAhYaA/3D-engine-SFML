@@ -33,9 +33,15 @@ TextureLoader::TextureLoader(std::string fileName)
     {
         ERROR("FILE WASNT OPEN");
     }
+    int a;
 }
 
 std::shared_ptr<sf::Texture> TextureLoader::GetTextureByMap(const char& mapObject)
 {
     return m_Textures[mapObject];
+}
+
+std::shared_ptr<sf::Texture> TextureLoader::GetSpriteTexture(const char& Object)
+{
+    return m_spriteTextures[Object];
 }

@@ -120,6 +120,8 @@ ipch/
 *.sap
 *.vcxproj*
 *.sln
+*.png
+*.jpg
 
 # Visual Studio Trace Files
 *.e2e
@@ -399,3 +401,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+*.mp3
+*.ttf
