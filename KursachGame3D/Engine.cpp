@@ -5,7 +5,7 @@ Engine::Engine()
     : m_window(
         sf::VideoMode(BASE_WIDTH, BASE_HEIGHT), 
         "Game", 
-        sf::Style::Default, 
+        sf::Style::Titlebar | sf::Style::Close,
         sf::ContextSettings(0U, 0U, 8, 0U, 1U, 0U, false))
 {
     printf("1ENGINE CONSTRUCTOR - FRAME LIMIT 60 - RESOLUTION %dx%d\n", BASE_WIDTH, BASE_HEIGHT);
@@ -18,7 +18,7 @@ Engine::Engine(const int framerate, const int fov)
     : m_window(
         sf::VideoMode(BASE_WIDTH, BASE_HEIGHT), 
         "Game", 
-        sf::Style::Default, 
+        sf::Style::Titlebar | sf::Style::Close,
         sf::ContextSettings(0U, 0U, 8, 0U, 1U, 0U, false))
 {
     m_window.setMouseCursorVisible(false);
@@ -128,11 +128,24 @@ void Engine::DrawTab(const sf::Event& event)
     m_window.setMouseCursorVisible(true);
     std::shared_ptr<sf::RectangleShape> back = std::make_shared<sf::RectangleShape>(sf::Vector2f(BASE_WIDTH, BASE_HEIGHT));
     back->setFillColor(sf::Color(20, 0, 0));
+    std::shared_ptr<sf::RectangleShape> line = std::make_shared<sf::RectangleShape>(sf::Vector2f(3, 420));
+    line->setFillColor(sf::Color::White);
+    line->setPosition(sf::Vector2f(300, 60));
+    //Stats
     std::shared_ptr<sf::Text> MenuName = Tools::createText(*m_font, "Menu", sf::Vector2f(1, 1), 60, sf::Vector2f(50, 50));
     std::shared_ptr<sf::Text> StatsText = Tools::createText(*m_font, "Stats:", sf::Vector2f(1, 1), 50, sf::Vector2f(50, 120));
     std::shared_ptr<sf::Text> KillsText = Tools::createText(*m_font, "Kills: " + std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_killsCounter.y), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 175));
     std::shared_ptr<sf::Text> SpeedText = Tools::createText(*m_font, "Speed: " + std::to_string(PLAYERSPEED), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 210));
-    std::shared_ptr<sf::Text> DamageText = Tools::createText(*m_font, "Damage : " + std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_damage), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 245));
+    std::shared_ptr<sf::Text> DamageText = Tools::createText(*m_font, "Damage: " + std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_damage), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 245));
+    std::shared_ptr<sf::Text> LvlText = Tools::createText(*m_font, "Lvl: " + std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl + 1), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 280));
+
+    //exit
+    std::shared_ptr<Button> Exit = std::make_shared<Button>(Tools::createText(*m_font, "Exit", sf::Vector2f(1, 1), 50, sf::Vector2f(50, 400)));
+
+    //guns
+    std::shared_ptr<Button> PistolButton = std::make_shared<Button>(Tools::createText(*m_font, "PISTOL", sf::Vector2f(1, 1), 100, sf::Vector2f(BASE_WIDTH / 3, 40)));
+    std::shared_ptr<Button> ShootGunButton = std::make_shared<Button>(Tools::createText(*m_font, "SHOOTGUN", sf::Vector2f(1, 1), 100, sf::Vector2f(BASE_WIDTH / 3, 200)));
+    std::shared_ptr<Button> RifleButton = std::make_shared<Button>(Tools::createText(*m_font, "RIFLE", sf::Vector2f(1, 1), 100, sf::Vector2f(BASE_WIDTH / 3, 360)));
 
     m_backMusic.pause();
     while (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
@@ -142,6 +155,65 @@ void Engine::DrawTab(const sf::Event& event)
         m_entityClock.restart();
         m_globalClock.restart();
 
+        if (Exit->IsCursorOnButton(sf::Mouse::getPosition(m_window)))
+        {
+            Exit->m_text->setFillColor(sf::Color::Blue);
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                m_window.close();
+            }
+        }
+        else
+        {
+            Exit->m_text->setFillColor(sf::Color::White);
+        }
+
+        if (PistolButton->IsCursorOnButton(sf::Mouse::getPosition(m_window)))
+        {
+            PistolButton->m_text->setFillColor(sf::Color::Blue);
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_gun = Gun::Pistol;
+            }
+        }
+        else
+        {
+            m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_gun == Gun::Pistol ? PistolButton->m_text->setFillColor(sf::Color::Red) : PistolButton->m_text->setFillColor(sf::Color::White);
+        }
+        if (ShootGunButton->IsCursorOnButton(sf::Mouse::getPosition(m_window)) && (m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl == Lvl::lvl2 || m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl == Lvl::lvl3))
+        {
+            ShootGunButton->m_text->setFillColor(sf::Color::Blue);
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_gun = Gun::Shootgun;
+            }
+        }
+        else if (m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl != Lvl::lvl2 && m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl != Lvl::lvl3)
+        {
+            ShootGunButton->m_text->setFillColor(sf::Color(127, 127, 127));
+        }
+        else
+        {
+            m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_gun == Gun::Shootgun ? ShootGunButton->m_text->setFillColor(sf::Color::Red) : ShootGunButton->m_text->setFillColor(sf::Color::White);
+        }
+
+        if (RifleButton->IsCursorOnButton(sf::Mouse::getPosition(m_window)) && m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl == Lvl::lvl3)
+        {
+            RifleButton->m_text->setFillColor(sf::Color::Blue);
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_gun = Gun::Rifle;
+            }
+        }
+        else if (m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl != Lvl::lvl3)
+        {
+            RifleButton->m_text->setFillColor(sf::Color(127, 127, 127));
+        }
+        else
+        {
+            m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_gun == Gun::Rifle ? RifleButton->m_text->setFillColor(sf::Color::Red) : RifleButton->m_text->setFillColor(sf::Color::White);
+        }
+
         m_window.clear();
         m_window.draw(*back);
         m_window.draw(*MenuName);
@@ -149,10 +221,32 @@ void Engine::DrawTab(const sf::Event& event)
         m_window.draw(*KillsText);
         m_window.draw(*SpeedText);
         m_window.draw(*DamageText);
+        m_window.draw(*LvlText);
+        m_window.draw(*(PistolButton->m_text));
+        m_window.draw(*(ShootGunButton->m_text));
+        m_window.draw(*(RifleButton->m_text));
+        m_window.draw(*line);
+        m_window.draw(*(Exit->m_text));
         m_window.display();
     }
-    m_backMusic.play();
+    m_backMusic.play(); 
     m_window.setMouseCursorVisible(false);
+}
+
+void Engine::DrawMainMenu(const sf::Event& event)
+{
+    while (true)
+    {
+
+    }
+}
+
+void Engine::DrawShop(const sf::Event& event)
+{
+    while (true)
+    {
+
+    }
 }
 
 void Engine::PoolEvent(const sf::Event& eventType)
@@ -160,28 +254,6 @@ void Engine::PoolEvent(const sf::Event& eventType)
     if (eventType.key.code == sf::Keyboard::Escape || eventType.type == sf::Event::Closed)
     {
         m_window.close();
-    }
-    if (eventType.type == sf::Event::Resized)
-    {
-        double scale = (double)m_event.size.width / (double)m_event.size.height;
-        double newWidth;
-        double newHeight;
-
-        if (scale > (double)BASE_WIDTH / (double)BASE_HEIGHT)
-        {
-            newWidth = (double)BASE_HEIGHT * scale;
-            newHeight = (double)BASE_HEIGHT;
-        }
-        else
-        {
-            newWidth = (double)BASE_WIDTH;
-            newHeight = (double)BASE_WIDTH / scale;
-        }
-
-        double offsetX = (double)BASE_WIDTH / 2 - (double)newWidth / 2;
-        double offsetY = (double)BASE_HEIGHT / 2 - (double)newHeight / 2;
-
-        m_window.setView(sf::View(sf::FloatRect(offsetX, offsetY, newWidth, newHeight)));
     }
     if (eventType.key.code == sf::Keyboard::Tab)
     {

@@ -5,7 +5,7 @@
 #define BASE_WIDTH 1024
 #define BASE_HEIGHT 768
 #define PLAYERSPEED 120
-#define BOTSPEED 4
+#define BOTSPEED 5
 #define ROTATESPEED 5
 #define VIEWANGLE 1.57
 #define DISTANCE 150

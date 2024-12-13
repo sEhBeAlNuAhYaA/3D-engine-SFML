@@ -232,7 +232,7 @@ void RayCastingProccessingForMapAndFrame::addHud(DrawableCollection& entitiesCol
     entitiesCollection.PushDrawable(drawableShape3);
 }
 
-PlayerOnMap RayCastingProccessingForMapAndFrame::GetPlayerOnMap()
+PlayerOnMap& RayCastingProccessingForMapAndFrame::GetPlayerOnMap()
 {
     return m_playerOnMap;
 }

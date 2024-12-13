@@ -36,7 +36,7 @@ public:
     void setPlayerOnMapPostion(const sf::Vector2f& position);
     void PlayerMovement(sf::Clock& globalClock, sf::Event& event, sf::Clock& playerHitClock, sf::RenderWindow& m_window);
     void PlayerCollisionsWithMap(const sf::Vector2f& playerPosition, double deltaTime);
-    PlayerOnMap GetPlayerOnMap();
+    PlayerOnMap& GetPlayerOnMap();
     void DoHit(sf::Clock& clock);
     void checkForKills();
     void playerDamage(sf::Clock& clockForEntity);

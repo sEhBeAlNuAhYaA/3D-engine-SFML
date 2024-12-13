@@ -18,6 +18,20 @@ enum class Direction
     Right
 };
 
+enum class Gun
+{
+    Shootgun,
+    Pistol,
+    Rifle
+};
+
+enum Lvl
+{
+    lvl1,
+    lvl2,
+    lvl3
+};
+
 struct PlayerOnMap
 {
 public:
@@ -34,4 +48,7 @@ public:
     float m_Armor;
     sf::Vector2i m_killsCounter;
     int m_damage;
+    Gun m_gun;
+    Lvl m_lvl;
+
 };

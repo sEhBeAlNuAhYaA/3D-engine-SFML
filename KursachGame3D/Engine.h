@@ -11,6 +11,7 @@
 #include <fstream>
 #include "Tools.h"
 #include "TextureLoader.h"
+#include "Button.h"
 
 class Engine
 {
@@ -24,6 +25,8 @@ public:
     void Update();
     void DrawEntities(DrawableCollection entitiesCollection);
     void DrawTab(const sf::Event& event);
+    void DrawMainMenu(const sf::Event& event);
+    void DrawShop(const sf::Event& event);
 
 private:
     sf::RenderWindow m_window;

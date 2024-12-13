@@ -17,4 +17,6 @@ PlayerOnMap::PlayerOnMap(const int fov)
     m_damage = 25;
     m_Armor = 0;
     m_killsCounter = sf::Vector2i(0,0);
+    m_gun = Gun::Pistol;
+    m_lvl = Lvl::lvl2;
 }
