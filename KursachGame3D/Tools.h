@@ -12,6 +12,8 @@
 #define MapObjectWidth 16
 #define MapObjectHeght 16
 
+#define MAP_HEIGHT 30
+#define MAP_WIDTH 30
 
 
 #define ERROR(x)// log << "ERROR - %s" + x << "\n";

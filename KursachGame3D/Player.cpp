@@ -16,7 +16,6 @@ PlayerOnMap::PlayerOnMap(const int fov)
     m_HP = 100;
     m_damage = 25;
     m_Armor = 100;
-    m_entityDamage = 10;
     m_killsCounter = sf::Vector2i(0,0);
     m_gun = Gun::Pistol;
     m_lvl = Lvl::lvl0;
@@ -26,8 +25,11 @@ PlayerOnMap::PlayerOnMap(const int fov)
 
 void PlayerOnMap::updateLvl()
 {
+    m_HP = 100;
+    m_score = 0;
     if (m_lvl == Lvl::lvl0)
     {
+        m_entityDamage = 10;
         m_Armor = 0;
         m_gun = Gun::Pistol;
     }
@@ -64,6 +66,28 @@ void PlayerOnMap::updateGun()
     if (m_gun == Gun::Rifle)
     {
         m_damage = 100;
+    }
+}
+
+void PlayerOnMap::InitGunMagazin()
+{
+    if (m_gun == Gun::Pistol)
+    {
+        m_bulletsCount = 50;
+        m_magazin = 10;
+        m_magazinCapacity = 10;
+    }
+    if (m_gun == Gun::Shootgun)
+    {
+        m_bulletsCount = 25;
+        m_magazin = 5;
+        m_magazinCapacity = 5;
+    }
+    if (m_gun == Gun::Rifle)
+    {
+        m_bulletsCount = 10;
+        m_magazin = 2;
+        m_magazinCapacity = 2;
     }
 }
 

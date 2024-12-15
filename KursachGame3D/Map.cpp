@@ -3,13 +3,13 @@
 RayCastingProccessingForMapAndFrame::RayCastingProccessingForMapAndFrame(const PlayerOnMap& player)
     : m_textureLoader("textures.txt")
 {
+    mapGeneration();
     m_hitSound.openFromFile("hitSound.mp3");
     m_hitSound.setVolume(5);
     m_playerHitSound.openFromFile("playerHit.mp3");
     m_playerHitSound.setVolume(15);
     m_playerHitSound.pause();
     m_playerOnMap = player;
-    FillShapesMap();
     FindPathForEveryEntity();
 }
 
@@ -23,56 +23,6 @@ void RayCastingProccessingForMapAndFrame::setPlayerOnMapPostion(const sf::Vector
     m_ShapesMap[m_playerOnMapPosition].get()->setPosition(position);
 }
 
-void RayCastingProccessingForMapAndFrame::FillShapesMap()
-{
-    sf::Image mapImage;
-    mapImage.loadFromFile("map.png");
-
-    for (int i = 0; i < mapImage.getSize().x; ++i)
-    {
-
-        for (int j = 0; j < mapImage.getSize().y; ++j)
-        {
-            if (mapImage.getPixel(i, j) != sf::Color::Red)
-            {
-                if (mapImage.getPixel(i, j) == sf::Color::White)
-                {
-                    m_Map[i][j] = '1';
-                }
-                else if (mapImage.getPixel(i, j) == sf::Color::Blue)
-                {
-                    m_Map[i][j] = '2';
-                }
-                else if (mapImage.getPixel(i, j) == sf::Color::Green)
-                {
-                    m_Map[i][j] = '3';
-                }
-
-                else
-                {
-                    if (mapImage.getPixel(i, j) == sf::Color(100, 100, 100))
-                    {
-                        Entity entity(sf::Vector2f(i,j), 100);
-                        entity.SetImage("bobik.png");
-                        m_EntityList.push_back(entity);
-                        m_Map[i][j] = 'e';
-                        continue;
-                    }
-                    m_Map[i][j] = '0';
-                }
-            }
-            else
-            {
-                m_playerOnMapPosition = m_ShapesMap.size();
-                m_playerOnMap.m_playerShape.setOrigin(sf::Vector2f(m_playerOnMap.m_playerShape.getRadius(), m_playerOnMap.m_playerShape.getRadius()));
-                m_playerOnMap.m_playerShape.setFillColor(sf::Color::White);
-                m_ShapesMap.push_back(std::static_pointer_cast<sf::Shape>(std::make_shared<sf::CircleShape>(m_playerOnMap.m_playerShape)));
-                m_ShapesMap[m_playerOnMapPosition]->setPosition(sf::Vector2f(i * MapObjectWidth, j * MapObjectHeght));
-                m_Map[i][j] = '@';
-            }
-        }
-    }
-}
 
 bool RayCastingProccessingForMapAndFrame::isValidPosition(int x, int y, std::vector<std::vector<bool>>& visited)
 {
@@ -244,6 +194,69 @@ void RayCastingProccessingForMapAndFrame::addHud(DrawableCollection& entitiesCol
     entitiesCollection.PushDrawable(drawableShape3);
 }
 
+void RayCastingProccessingForMapAndFrame::mapGeneration()
+{
+    sf::Image image;
+    image.create(MAP_HEIGHT, MAP_WIDTH);
+
+    for (int y = 0; y < MAP_HEIGHT; ++y) {
+        for (int x = 0; x < MAP_WIDTH; ++x) {
+            if (x == 0 || x == MAP_WIDTH - 1 || y == 0 || y == MAP_HEIGHT - 1) {
+                m_Map[y][x] = '1'; // Стена по краю
+                image.setPixel(y, x, sf::Color::White);
+            }
+            else {
+                float noiseValue = perlinNoise();
+                if (noiseValue < -0.9) {
+                    m_Map[y][x] = '1';
+                    image.setPixel(y, x, sf::Color::White);
+                }
+                else if (noiseValue < -0.86) {
+                    m_Map[y][x] = '2';
+                    image.setPixel(y, x, sf::Color::Blue);
+                }
+                else if (noiseValue < -0.8) {
+                    m_Map[y][x] = '3';
+                    image.setPixel(y, x, sf::Color::Green);
+                }
+                else {
+                    m_Map[y][x] = '0';
+                    image.setPixel(y, x, sf::Color::Black);
+                }
+            }
+        }
+    }
+
+    m_Map[MAP_HEIGHT / 2][MAP_WIDTH / 2] = '@';
+    image.setPixel(MAP_HEIGHT / 2, MAP_WIDTH / 2, sf::Color::Red);
+    m_playerOnMapPosition = m_ShapesMap.size();
+    m_playerOnMap.m_playerShape.setOrigin(sf::Vector2f(m_playerOnMap.m_playerShape.getRadius(), m_playerOnMap.m_playerShape.getRadius()));
+    m_playerOnMap.m_playerShape.setFillColor(sf::Color::White);
+    m_ShapesMap.push_back(std::static_pointer_cast<sf::Shape>(std::make_shared<sf::CircleShape>(m_playerOnMap.m_playerShape)));
+    m_ShapesMap[m_playerOnMapPosition]->setPosition(sf::Vector2f(MAP_HEIGHT / 2 * MapObjectWidth, MAP_WIDTH / 2 * MapObjectHeght));
+
+    for (int i = 0; i < 5; ++i) {
+        int x = std::rand() % (MAP_WIDTH - 2) + 1;
+        int y = std::rand() % (MAP_HEIGHT - 2) + 1;
+        while (m_Map[y][x] == '@') {
+            x = std::rand() % (MAP_WIDTH - 2) + 1;
+            y = std::rand() % (MAP_HEIGHT - 2) + 1;
+        }
+        m_Map[y][x] = 'e';
+        Entity entity(sf::Vector2f(y, x), 100);
+        entity.SetImage("bobik.png");
+        m_EntityList.push_back(entity);
+        image.setPixel(y, x, sf::Color(100, 100, 100));
+    }
+
+    image.saveToFile("map.png");
+}
+
+float RayCastingProccessingForMapAndFrame::perlinNoise()
+{
+    return (std::rand() / (RAND_MAX / 2.0)) - 1.0;
+}
+
 PlayerOnMap& RayCastingProccessingForMapAndFrame::GetPlayerOnMap()
 {
     return m_playerOnMap;
@@ -267,6 +280,37 @@ void RayCastingProccessingForMapAndFrame::DoHit(sf::Clock& clock)
     }
     if (clock.getElapsedTime().asSeconds() > time)
     {
+        if (m_playerOnMap.m_bulletsCount == 0)
+        {
+            if (m_playerOnMap.m_magazin == 0)
+            {
+                return;
+            }
+            else
+            {
+                if (m_playerOnMap.m_magazin == 0)
+                {
+                    return;
+                }
+                else
+                {
+                    m_playerOnMap.m_magazin -= 1;
+                }
+            }
+        }
+        else
+        {
+            if (m_playerOnMap.m_magazin - 1 == 0)
+            {
+                m_playerOnMap.m_magazin = m_playerOnMap.m_magazinCapacity;
+                m_playerOnMap.m_bulletsCount -= m_playerOnMap.m_magazinCapacity;
+            }
+            else
+            {
+                m_playerOnMap.m_magazin -= 1;
+            }
+        }
+
         m_hitSound.play();
         m_playerOnMap.m_bisHiting = true;
         std::vector<int> toDelete;
@@ -316,7 +360,6 @@ void RayCastingProccessingForMapAndFrame::DoHit(sf::Clock& clock)
                         m_playerOnMap.m_killsCounter.y += 1;
                         toDelete.push_back(std::distance(std::begin(m_EntityList), it));
                     }
-                    //printf("N:%d, HP:%f\n", std::distance(std::begin(m_EntityList), it), it->m_HP);
                 }
             }
         }
@@ -333,7 +376,7 @@ void RayCastingProccessingForMapAndFrame::checkForKills()
 {
     if (m_playerOnMap.m_killsCounter.x != m_playerOnMap.m_killsCounter.y)
     {
-        m_playerOnMap.m_score = m_playerOnMap.m_killsCounter.y * 150;
+        m_playerOnMap.m_score = m_playerOnMap.m_killsCounter.y * 500;
         switch (m_playerOnMap.m_killsCounter.y)
         {
         case 1: {
@@ -427,14 +470,12 @@ void RayCastingProccessingForMapAndFrame::fillEntityFromEngine(DrawableCollectio
         CurrentPositionX = it->m_CurrentPosition.x;
         CurrentPositionY = it->m_CurrentPosition.y;
 
-        if (modf(CurrentPositionX, &a) != 0 || modf(CurrentPositionY, &a) != 0)
+        if (modf(CurrentPositionX, &a) == 0 || modf(CurrentPositionY, &a) == 0)
         {
-            if (modf(CurrentPositionX, &a) == 0)
+            if (modf(CurrentPositionX, &a) == 0 && (it->m_Direction == EntityDirection::Down || it->m_Direction == EntityDirection::Up))
             {
                 CurrentPositionX += 0.5;
-            }
-
-            if (modf(CurrentPositionY, &a) == 0)
+            }else if (modf(CurrentPositionY, &a) == 0 && (it->m_Direction == EntityDirection::Left || it->m_Direction == EntityDirection::Right))
             {
                 CurrentPositionY += 0.5;
             }
@@ -539,7 +580,7 @@ void RayCastingProccessingForMapAndFrame::MoveEntityToPlayer(sf::Clock& clock, d
     {
         if (m_EntityList[i].m_Distance <= 16 * 7 && m_EntityList[i].m_pathToPlayer.size() < 10)
         {
-            if (m_EntityList[i].m_pathToPlayer.size() == 1)
+            if (m_EntityList[i].m_pathToPlayer.size() <= 1)
             {
                 clock.restart();
                 continue;
@@ -551,6 +592,7 @@ void RayCastingProccessingForMapAndFrame::MoveEntityToPlayer(sf::Clock& clock, d
 
             if (distanceX > 0)
             {
+                m_EntityList[i].m_Direction = EntityDirection::Right;
                 m_EntityList[i].m_CurrentPosition.x = m_EntityList[i].m_CurrentPosition.x - deltaTime * BOTSPEED;
                 if (m_EntityList[i].m_CurrentPosition.x + 0.1 > m_EntityList[i].m_pathToPlayer[1].x && m_EntityList[i].m_CurrentPosition.x - 0.1 < m_EntityList[i].m_pathToPlayer[1].x)
                 {
@@ -561,6 +603,7 @@ void RayCastingProccessingForMapAndFrame::MoveEntityToPlayer(sf::Clock& clock, d
             }
             else if (distanceX < 0)
             {
+                m_EntityList[i].m_Direction = EntityDirection::Left;
                 m_EntityList[i].m_CurrentPosition.x = m_EntityList[i].m_CurrentPosition.x + deltaTime * BOTSPEED;
                 if (m_EntityList[i].m_CurrentPosition.x + 0.1 > m_EntityList[i].m_pathToPlayer[1].x && m_EntityList[i].m_CurrentPosition.x - 0.1 < m_EntityList[i].m_pathToPlayer[1].x)
                 {
@@ -573,10 +616,12 @@ void RayCastingProccessingForMapAndFrame::MoveEntityToPlayer(sf::Clock& clock, d
 
                 if (distanceY > 0)
                 {
+                    m_EntityList[i].m_Direction = EntityDirection::Down;
                     m_EntityList[i].m_CurrentPosition.y = m_EntityList[i].m_CurrentPosition.y - deltaTime * BOTSPEED;
                 }
                 else if (distanceY < 0)
                 {
+                    m_EntityList[i].m_Direction = EntityDirection::Up;
                     m_EntityList[i].m_CurrentPosition.y = m_EntityList[i].m_CurrentPosition.y + deltaTime * BOTSPEED;
                 }
 

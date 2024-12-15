@@ -40,6 +40,7 @@ public:
     PlayerOnMap(const int fov);
     void updateLvl();
     void updateGun();
+    void InitGunMagazin();
 
 public:
     int m_FOV;
@@ -55,5 +56,8 @@ public:
     Lvl m_lvl;
     int m_score;
     int m_entityDamage;
+    int m_bulletsCount;
+    int m_magazin;
+    int m_magazinCapacity;
 
 };

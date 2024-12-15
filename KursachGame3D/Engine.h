@@ -35,6 +35,8 @@ public:
     void DrawMainMenu(const sf::Event& event);
     void DrawShop(const sf::Event& event);
     void DrawGame(const sf::Event& event);
+    void DrawEnemiesCounter();
+    void DrawBulletsCounter();
 
 private:
     sf::RenderWindow m_window;

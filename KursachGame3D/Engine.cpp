@@ -51,14 +51,15 @@ void Engine::Update()
         }
         if (m_gameState == GameState::Game)
         {
+            m_playerOnMap->InitGunMagazin();
             m_RayCastingProccessingForMapAndFrame = new RayCastingProccessingForMapAndFrame(*m_playerOnMap);
             DrawGame(m_event);
         }
         if (m_gameState == GameState::ShopMenu)
-        {
+        {   
+            DrawShop(m_event);
             m_playerOnMap->updateLvl();
             m_playerOnMap->updateGun();
-            DrawShop(m_event);
         }
 
     }
@@ -77,6 +78,9 @@ void Engine::DrawGame(const sf::Event& event)
         {
             if (m_RayCastingProccessingForMapAndFrame->IsPlayerDead())
             {
+                m_playerOnMap->m_lvl = Lvl::lvl0;
+                m_playerOnMap->updateGun();
+                m_playerOnMap->updateLvl();
                 m_gameState = GameState::MainMenu;
                 break;
             }
@@ -104,8 +108,27 @@ void Engine::DrawGame(const sf::Event& event)
         DrawableCollection frame = m_RayCastingProccessingForMapAndFrame->FillEntitiesCollectionForMapAndFrame();
         DrawEntities(frame);
         DrawMap(m_RayCastingProccessingForMapAndFrame);
+        DrawEnemiesCounter();
+        DrawBulletsCounter();
         m_window.display();
     }
+}
+
+void Engine::DrawEnemiesCounter()
+{
+    std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
+    font->loadFromFile("font.ttf");
+    std::shared_ptr<sf::Text> text = Tools::createText(*font, "Enemies count: " + std::to_string(m_RayCastingProccessingForMapAndFrame->m_EntityList.size()), sf::Vector2f(1, 1), 30, sf::Vector2f(700, 50));
+    m_window.draw(*text);
+}
+
+void Engine::DrawBulletsCounter()
+{
+    std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
+    font->loadFromFile("font.ttf");
+    std::shared_ptr<sf::Text> text = Tools::createText(*font, 
+        std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_magazin) + " / " + std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_bulletsCount), sf::Vector2f(1, 1), 30, sf::Vector2f(700, 600));
+    m_window.draw(*text);
 }
 
 void Engine::DrawEntities(DrawableCollection entitiesCollection)
@@ -148,7 +171,6 @@ void Engine::DrawTab(const sf::Event& event)
     std::shared_ptr<sf::Text> StatsText = Tools::createText(*m_font, "Stats:", sf::Vector2f(1, 1), 50, sf::Vector2f(50, 120));
     std::shared_ptr<sf::Text> KillsText = Tools::createText(*m_font, "Kills: " + std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_killsCounter.y), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 175));
     std::shared_ptr<sf::Text> SpeedText = Tools::createText(*m_font, "Speed: " + std::to_string(PLAYERSPEED), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 210));
-    std::shared_ptr<sf::Text> DamageText = Tools::createText(*m_font, "Damage: " + std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_damage), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 245));
     std::shared_ptr<sf::Text> LvlText = Tools::createText(*m_font, "Lvl: " + std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 280));
 
     //exit
@@ -162,6 +184,8 @@ void Engine::DrawTab(const sf::Event& event)
     m_backMusic.pause();
     while (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
     {   
+        std::shared_ptr<sf::Text> DamageText = Tools::createText(*m_font, "Damage: " + std::to_string(m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_damage), sf::Vector2f(1, 1), 40, sf::Vector2f(50, 245));
+
         m_playerHitClock.restart();
         m_entityHitClock.restart();
         m_entityClock.restart();
@@ -185,8 +209,9 @@ void Engine::DrawTab(const sf::Event& event)
             PistolButton->m_text->setFillColor(sf::Color::Blue);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().updateGun();
                 m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_gun = Gun::Pistol;
+                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().updateGun();
+                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().InitGunMagazin();
             }
         }
         else
@@ -199,8 +224,9 @@ void Engine::DrawTab(const sf::Event& event)
             ShootGunButton->m_text->setFillColor(sf::Color::Blue);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().updateGun();
                 m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_gun = Gun::Shootgun;
+                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().updateGun();
+                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().InitGunMagazin();
             }
         }
         else if (m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl != Lvl::lvl2 && m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl != Lvl::lvl3)
@@ -217,8 +243,9 @@ void Engine::DrawTab(const sf::Event& event)
             RifleButton->m_text->setFillColor(sf::Color::Blue);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().updateGun();
                 m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_gun = Gun::Rifle;
+                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().updateGun();
+                m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().InitGunMagazin();
             }
         }
         else if (m_RayCastingProccessingForMapAndFrame->GetPlayerOnMap().m_lvl != Lvl::lvl3)
@@ -260,7 +287,13 @@ void Engine::DrawMainMenu(const sf::Event& event)
     std::shared_ptr<Button> Start = std::make_shared<Button>(Tools::createText(*m_font, "Start", sf::Vector2f(1, 1), 50, sf::Vector2f(50, 225)));
     //exit
     std::shared_ptr<Button> Exit = std::make_shared<Button>(Tools::createText(*m_font, "Exit", sf::Vector2f(1, 1), 50, sf::Vector2f(50, 300)));
-    
+    sf::Texture t;
+    t.loadFromFile("phone.jpg");
+    std::shared_ptr<sf::Texture> tex = std::make_shared<sf::Texture>(t);
+    std::shared_ptr<sf::Sprite> sprite = std::make_shared<sf::Sprite>();
+    sprite->setTexture(*tex);
+    sprite->setPosition(400, 25);
+    sprite->setScale(2, 2);
     while (event.type != sf::Event::Closed)
     {
         while (m_window.pollEvent(m_event))
@@ -301,6 +334,7 @@ void Engine::DrawMainMenu(const sf::Event& event)
         m_window.draw(*MenuName);
         m_window.draw(*(Start->m_text));
         m_window.draw(*(Exit->m_text));
+        m_window.draw(*sprite);
         m_window.display();
     }
 }

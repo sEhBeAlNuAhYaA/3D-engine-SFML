@@ -16,7 +16,7 @@
 #include "queue"
 
 
-static char m_Map[50][50];
+static char m_Map[30][30];
 
 class RayCastingProccessingForMapAndFrame
 {
@@ -28,7 +28,6 @@ public:
 
 public:
     std::vector<std::shared_ptr<sf::Shape>> GetMap();
-    void FillShapesMap();
     bool isValidPosition(int x, int y, std::vector<std::vector<bool>>& visited);
 
 public:
@@ -47,6 +46,10 @@ public:
     void addBackGroundShape(DrawableCollection& entitiesCollection);
     void addArms(DrawableCollection& entitiesCollection);  
     void addHud(DrawableCollection& entitiesCollection);
+
+public:
+    void mapGeneration();
+    float perlinNoise();
 
 public:
     std::vector<Entity> m_EntityList;

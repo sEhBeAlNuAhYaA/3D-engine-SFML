@@ -6,8 +6,8 @@
 
 enum class EntityDirection
 {
-    Forward,
-    Backward,
+    Down,
+    Up,
     Left,
     Right
 };
@@ -50,6 +50,6 @@ public:
     sf::Image m_Image;
     std::shared_ptr<Drawable> m_DrawableSprite = 0;
     std::vector<sf::Vector2i> m_pathToPlayer;
-    EntityDirection m_Direction = EntityDirection::Forward;
+    EntityDirection m_Direction = EntityDirection::Down;
 };
 
